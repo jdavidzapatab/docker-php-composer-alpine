@@ -3,6 +3,7 @@ FROM php:7.4-alpine
 LABEL maintainer="David Zapata <jdavid.zapatab@gmail.com>"
 
 RUN mkdir -p /var/www
+RUN apk update && apk upgrade
 RUN apk add --no-cache $PHPIZE_DEPS
 RUN apk add --no-cache zip
 RUN apk add --no-cache

@@ -4,6 +4,8 @@ LABEL maintainer="David Zapata <jdavid.zapatab@gmail.com>"
 
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
+RUN apk update && apx upgrade
+RUN sync
 RUN chmod +x /usr/local/bin/install-php-extensions
 RUN mkdir -p /var/www
 RUN install-php-extensions xdebug

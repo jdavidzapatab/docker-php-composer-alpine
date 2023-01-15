@@ -3,7 +3,9 @@ FROM php:8.0-alpine
 LABEL maintainer="David Zapata <jdavid.zapatab@gmail.com>"
 
 RUN mkdir -p /var/www
+RUN apk update && apk upgrade
 RUN apk add --no-cache $PHPIZE_DEPS
+RUN apk add --update linux-headers
 RUN apk add --no-cache zip
 RUN apk add --no-cache libzip-dev
 RUN apk add --no-cache libxml2-dev

@@ -6,7 +6,6 @@ RUN mkdir -p /var/www
 RUN apk update && apk upgrade
 RUN apk add --no-cache $PHPIZE_DEPS
 RUN apk add --no-cache zip
-RUN apk add --no-cache
 RUN apk add --no-cache libzip-dev
 RUN apk add --no-cache libxml2-dev
 RUN apk add --no-cache libmcrypt-dev
@@ -16,9 +15,8 @@ RUN apk add --no-cache libpng-dev
 RUN apk add --no-cache imagemagick
 RUN apk add --no-cache imagemagick-libs
 RUN apk add --no-cache imagemagick-dev
-RUN apk add --no-cache php7-imagick
-RUN pecl install xdebug
-RUN docker-php-ext-enable xdebug
+#RUN pecl install xdebug
+#RUN docker-php-ext-enable xdebug
 RUN pecl install --nodeps mcrypt-snapshot
 RUN docker-php-ext-enable mcrypt
 RUN docker-php-ext-configure zip
@@ -35,6 +33,10 @@ RUN pecl install pcov
 RUN docker-php-ext-enable pcov
 RUN pecl install redis
 RUN docker-php-ext-enable redis
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod uga+x /usr/local/bin/install-php-extensions
+RUN sync
+RUN install-php-extensions xdebug
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 WORKDIR /var/www

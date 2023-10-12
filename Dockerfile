@@ -23,7 +23,8 @@ RUN docker-php-ext-install soap
 RUN pecl install redis
 RUN docker-php-ext-enable redis
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-RUN apk upgrade curl
+RUN apk update && apk upgrade
+RUN sync
 RUN rm -rf /var/cache/apk/*
 
 WORKDIR /var/www

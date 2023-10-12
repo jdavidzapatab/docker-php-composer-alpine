@@ -4,6 +4,9 @@ LABEL maintainer="David Zapata <jdavid.zapatab@gmail.com>"
 
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
+RUN apk update && apk upgrade
+RUN sync
+RUN apk upgrade curl
 RUN chmod +x /usr/local/bin/install-php-extensions \
     && mkdir -p /var/www \
     && install-php-extensions xdebug \
@@ -15,7 +18,8 @@ RUN chmod +x /usr/local/bin/install-php-extensions \
     && install-php-extensions soap \
     && install-php-extensions redis \
     && install-php-extensions pcntl \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
+RUN rm -rf /var/cache/apk/*
 
 WORKDIR /var/www
 COPY . /var/www

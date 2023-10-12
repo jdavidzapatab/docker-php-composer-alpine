@@ -4,6 +4,7 @@ LABEL maintainer="David Zapata <jdavid.zapatab@gmail.com>"
 
 RUN mkdir -p /var/www
 RUN apk update && apk upgrade
+RUN sync
 RUN apk add --no-cache $PHPIZE_DEPS
 RUN apk add --update linux-headers
 RUN apk add --no-cache zip
@@ -22,6 +23,8 @@ RUN docker-php-ext-install soap
 RUN pecl install redis
 RUN docker-php-ext-enable redis
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+RUN apk upgrade curl
+RUN rm -rf /var/cache/apk/*
 
 WORKDIR /var/www
 COPY . /var/www

@@ -18,7 +18,7 @@ RUN chmod +x /usr/local/bin/install-php-extensions \
     && install-php-extensions soap \
     && install-php-extensions redis \
     && install-php-extensions pcntl \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 RUN rm -rf /var/cache/apk/*
 
 WORKDIR /var/www

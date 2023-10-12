@@ -37,6 +37,9 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions
 RUN sync
 RUN install-php-extensions xdebug
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+RUN apk update && apk upgrade
+RUN sync
+RUN rm -rf /var/cache/apk/*
 
 WORKDIR /var/www
 COPY . /var/www

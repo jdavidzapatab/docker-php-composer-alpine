@@ -1,8 +1,9 @@
 ## Docker Container for PHP 7.4 and Composer
 
 This is a docker container for PHP 7.4 with composer installed. It can be used with
-any PHP project using composer. As this image is build on top of the
-[Alpine Linux](http://www.alpinelinux.org/) base image its very small.
+any PHP project using composer. Built on top of [Alpine Linux](http://www.alpinelinux.org/).
+
+Updated on 2023-11-30.
 
 ## Build
 

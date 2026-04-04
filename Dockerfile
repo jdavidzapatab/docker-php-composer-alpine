@@ -1,9 +1,9 @@
-FROM php:8.2-alpine
+FROM php:8.4-alpine
 
 LABEL maintainer="David Zapata <jdavid.zapatab@gmail.com>"
 
 # Install-php-extensions script
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 # Update Alpine and install PHP extensions.
 # Note: If critical CVEs persist after 'apk upgrade', consider pulling newer
@@ -11,9 +11,12 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 # For example, to mitigate CVEs in tar, curl, libcurl, and busybox.
 #
 # Example command for CVE scanning (run after build):
-# docker scout cves davidzapata/php-composer-alpine:8.2
+# docker scout cves davidzapata/php-composer-alpine:8.4
 # or
-# trivy image davidzapata/php-composer-alpine:8.2
+# trivy image davidzapata/php-composer-alpine:8.4
+# Install composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 RUN chmod +x /usr/local/bin/install-php-extensions && \
     apk update && \
     apk upgrade && \
@@ -25,16 +28,15 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
     install-php-extensions \
         xdebug \
         gd \
-        mcrypt \
         zip \
         bcmath \
         pdo_mysql \
+        pdo_pgsql \
         soap \
         redis \
         pcntl \
         mongodb \
         sockets && \
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
     rm -rf /var/cache/apk/*
 
 WORKDIR /var/www

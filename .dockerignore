@@ -1,0 +1,10 @@
+.git
+Dockerfile
+docker-compose.test.yml
+docker-php-composer-alpine.iml
+qodana.yaml
+readme.md
+.idea
+.vscode
+vendor
+node_modules

@@ -2,49 +2,69 @@ FROM php:7.4-alpine
 
 LABEL maintainer="David Zapata <jdavid.zapatab@gmail.com>"
 
-RUN mkdir -p /var/www
-RUN apk update && apk upgrade && \
-    apk add --no-cache $PHPIZE_DEPS && \
-    apk add --no-cache zip && \
-    apk add --no-cache libzip-dev && \
-    apk add --no-cache libxml2-dev && \
-    apk add --no-cache libmcrypt-dev && \
-    apk add --no-cache freetype-dev && \
-    apk add --no-cache libjpeg-turbo-dev && \
-    apk add --no-cache libpng-dev && \
-    apk add --no-cache imagemagick && \
-    apk add --no-cache imagemagick-libs && \
-    apk add --no-cache imagemagick-dev && \
-    pecl install --nodeps mcrypt-snapshot
-RUN docker-php-ext-enable mcrypt && \
-    docker-php-ext-configure zip && \
-    docker-php-ext-install bcmath && \
-    docker-php-ext-install zip && \
-    docker-php-ext-install pdo_mysql && \
-    docker-php-ext-install soap && \
-    docker-php-ext-install pcntl && \
-    docker-php-ext-configure gd --with-jpeg --with-freetype && \
-    docker-php-ext-install gd
-RUN pecl install imagick && \
-    docker-php-ext-enable --ini-name 20-imagick.ini imagick
-RUN pecl install pcov && \
-    docker-php-ext-enable pcov
-RUN pecl install redis && \
-    docker-php-ext-enable redis
-RUN pecl install mongodb && docker-php-ext-enable mongodb
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod uga+x /usr/local/bin/install-php-extensions
-RUN sync
-RUN install-php-extensions xdebug
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-RUN apk update && apk upgrade
-RUN sync
-RUN rm -rf /var/cache/apk/*
+# Use multi-stage copying for Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Install system dependencies and PHP extensions in a single layer
+# This optimizes image size by avoiding unnecessary layers and cleaning up build dependencies.
+# Upgrades the entire Alpine base to v3.20 for security, while keeping v3.16 for legacy libssl1.1 compatibility.
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.20/main" > /etc/apk/repositories && \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.20/community" >> /etc/apk/repositories && \
+    echo "@v3.16 http://dl-cdn.alpinelinux.org/alpine/v3.16/main" >> /etc/apk/repositories && \
+    apk upgrade --no-cache && \
+    apk add --no-cache \
+        musl \
+        tar \
+        curl \
+        busybox \
+        git \
+        xz \
+        xz-libs \
+        glib \
+        bash \
+        libzip \
+        libpng \
+        libjpeg-turbo \
+        freetype \
+        imagemagick \
+        libssl1.1@v3.16 \
+    && curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o /usr/local/bin/install-php-extensions \
+    && chmod +x /usr/local/bin/install-php-extensions \
+    && sync \
+    && install-php-extensions \
+        bcmath \
+        gd \
+        imagick \
+        mcrypt \
+        mongodb \
+        pcntl \
+        pcov \
+        pdo_mysql \
+        redis \
+        soap \
+        xdebug \
+        zip \
+    && rm /usr/local/bin/install-php-extensions \
+    && rm -rf /var/cache/apk/* /tmp/*
+
+# Use the production PHP configuration and apply basic security hardening
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && sed -i 's/expose_php = On/expose_php = Off/g' "$PHP_INI_DIR/php.ini"
+
+# Set up working directory
 WORKDIR /var/www
-COPY . /var/www
-VOLUME /var/www
 
+# Copy application files and set ownership to non-root user
+COPY --chown=www-data:www-data . /var/www
+
+# Use non-root user (www-data) for improved security
+USER www-data
+
+# Expose common ports
 EXPOSE 80 8000
 
+# Persistent volume for application data
+VOLUME /var/www
+
+# Default command
 CMD ["sh"]

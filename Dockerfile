@@ -10,7 +10,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Upgrades the entire Alpine base to v3.20 for security, while keeping v3.16 for legacy libssl1.1 compatibility.
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.20/main" > /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/v3.20/community" >> /etc/apk/repositories && \
-    echo "@v3.16 http://dl-cdn.alpinelinux.org/alpine/v3.16/main" >> /etc/apk/repositories && \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.16/main" >> /etc/apk/repositories && \
     apk upgrade --no-cache && \
     apk add --no-cache \
         musl \
@@ -27,7 +27,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.20/main" > /etc/apk/repositori
         libjpeg-turbo \
         freetype \
         imagemagick \
-        libssl1.1@v3.16 \
+        libssl1.1 \
     && curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o /usr/local/bin/install-php-extensions \
     && chmod +x /usr/local/bin/install-php-extensions \
     && sync \
